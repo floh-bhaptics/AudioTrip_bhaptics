@@ -28,6 +28,7 @@ namespace AudioTrip_bhaptics
             public static void Postfix(PlayerHand __instance, AudioTrip.ChoreoEventInstance ev)
             {
                 bool isRightHand = (ev.eventData.handedness == AudioTrip.ChoreoEvent.Handedness.Right);
+                bool isFoot = false;
                 string hitPattern;
                 if (ev is DrumInstance) hitPattern = "Smash";
                 switch (ev.eventData.type)
@@ -44,11 +45,26 @@ namespace AudioTrip_bhaptics
                     case AudioTrip.ChoreoEvent.EventType.Drum_Right:
                         hitPattern = "Smash";
                         break;
+                    case AudioTrip.ChoreoEvent.EventType.FootGem_Left:
+                    case AudioTrip.ChoreoEvent.EventType.FootGem_Right:
+                        hitPattern = "FootTouch";
+                        isFoot = true;
+                        break;
+                    case AudioTrip.ChoreoEvent.EventType.FootDirGem_Left:
+                    case AudioTrip.ChoreoEvent.EventType.FootDirGem_Right:
+                        hitPattern = "FootStrike";
+                        isFoot = true;
+                        break;
+                    case AudioTrip.ChoreoEvent.EventType.FootDrum_Left:
+                    case AudioTrip.ChoreoEvent.EventType.FootDrum_Right:
+                        hitPattern = "FootSmash";
+                        isFoot = true;
+                        break;
                     default:
                         hitPattern = "Touch";
                         break;
                 }
-                tactsuitVr.HitNote(hitPattern, isRightHand);
+                tactsuitVr.HitNote(hitPattern, isRightHand, isFoot);
             }
         }
 
@@ -73,18 +89,19 @@ namespace AudioTrip_bhaptics
             }
         }
 
+        
         [HarmonyPatch(typeof(PlayerHand), "ScoreRibbon", new Type[] { typeof(bool) })]
         public class bhaptics_ScoreRibbon
         {
             [HarmonyPostfix]
-            public static void Postfix(PlayerHand __instance)
+            public static void Postfix(PlayerHand __instance, RibbonInstance ___lastRibbon)
             {
-                bool isRightHand = ( (__instance.name.Contains("right")) | (__instance.name.Contains("Right")) );
+                bool isRightHand = ( ___lastRibbon.eventData.type == AudioTrip.ChoreoEvent.EventType.Ribbon_Right );
                 if (isRightHand) tactsuitVr.PlaybackHaptics("RibbonBuzz_R");
                 else tactsuitVr.PlaybackHaptics("RibbonBuzz_L");
             }
         }
-
+        
         [HarmonyPatch(typeof(TrackSparksController), "Play", new Type[] { typeof(int) })]
         public class bhaptics_PlaySparks
         {
