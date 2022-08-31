@@ -1,5 +1,5 @@
 # AudioTrip_bhaptics
-bhaptics integration demo mod for possible native integration?
+Simple bhaptics integration mod for Audio Trip. As a mod, this will only work on the PCVR version (Steam and Oculus Rift).
 
 ## Installation
 1. Get the [MelonLoader installer](https://melonwiki.xyz/#/?id=automated-installation) and install it on your game executable.
