@@ -21,7 +21,7 @@ namespace AudioTrip_bhaptics
             tactsuitVr.PlaybackHaptics("HeartBeat");
         }
 
-        [HarmonyPatch(typeof(PlayerHand), "HitNote", new Type[] { typeof(AudioTrip.ChoreoEventInstance), typeof(bool) })]
+        [HarmonyPatch(typeof(PlayerHand), "HitNote", new Type[] { typeof(AudioTrip.PhysicsBody), typeof(bool) })]
         public class bhaptics_NoteHit
         {
             [HarmonyPostfix]
@@ -68,7 +68,7 @@ namespace AudioTrip_bhaptics
             }
         }
 
-        [HarmonyPatch(typeof(PlayerHand), "OnBarrierHit", new Type[] { typeof(GameObject) })]
+        [HarmonyPatch(typeof(PlayerHand), "OnBarrierHit", new Type[] { typeof(AudioTrip.Collision) })]
         public class bhaptics_BarrierHit
         {
             [HarmonyPostfix]
@@ -79,7 +79,7 @@ namespace AudioTrip_bhaptics
             }
         }
 
-        [HarmonyPatch(typeof(PlayerHand), "OnMissedGem", new Type[] { typeof(GameObject) })]
+        [HarmonyPatch(typeof(PlayerHand), "OnMissedGem", new Type[] { typeof(AudioTrip.PhysicsBody) })]
         public class bhaptics_MissedGem
         {
             [HarmonyPostfix]
