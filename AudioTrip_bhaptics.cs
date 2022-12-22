@@ -14,9 +14,9 @@ namespace AudioTrip_bhaptics
     {
         public static TactsuitVR tactsuitVr;
 
-        public override void OnApplicationStart()
+        public override void OnInitializeMelon()
         {
-            base.OnApplicationStart();
+            //base.OnApplicationStart();
             tactsuitVr = new TactsuitVR();
             tactsuitVr.PlaybackHaptics("HeartBeat");
         }
@@ -25,13 +25,13 @@ namespace AudioTrip_bhaptics
         public class bhaptics_NoteHit
         {
             [HarmonyPostfix]
-            public static void Postfix(PlayerHand __instance, AudioTrip.ChoreoEventInstance ev)
+            public static void Postfix(PlayerHand __instance, AudioTrip.PhysicsBody ev)
             {
-                bool isRightHand = (ev.eventData.handedness == AudioTrip.ChoreoEvent.Handedness.Right);
+                bool isRightHand = (ev.ChoreoEventInstance.eventData.handedness == AudioTrip.ChoreoEvent.Handedness.Right);
                 bool isFoot = false;
                 string hitPattern;
-                if (ev is DrumInstance) hitPattern = "Smash";
-                switch (ev.eventData.type)
+                if (ev.ChoreoEventInstance is DrumInstance) hitPattern = "Smash";
+                switch (ev.ChoreoEventInstance.eventData.type)
                 {
                     case AudioTrip.ChoreoEvent.EventType.Gem_Left:
                     case AudioTrip.ChoreoEvent.EventType.Gem_Right:
