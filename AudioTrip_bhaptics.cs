@@ -8,6 +8,10 @@ using HarmonyLib;
 using MyBhapticsTactsuit;
 using UnityEngine;
 
+[assembly: MelonInfo(typeof(AudioTrip_bhaptics.AudioTrip_bhaptics), "AudioTrip_bhaptics", "1.1.2", "Florian Fahrenberger")]
+[assembly: MelonGame("Kinemotik Studios", "Audio Trip")]
+
+
 namespace AudioTrip_bhaptics
 {
     public class AudioTrip_bhaptics : MelonMod
@@ -16,7 +20,6 @@ namespace AudioTrip_bhaptics
 
         public override void OnInitializeMelon()
         {
-            //base.OnApplicationStart();
             tactsuitVr = new TactsuitVR();
             tactsuitVr.PlaybackHaptics("HeartBeat");
         }
