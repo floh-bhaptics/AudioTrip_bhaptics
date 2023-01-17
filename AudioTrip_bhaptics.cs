@@ -8,7 +8,7 @@ using HarmonyLib;
 using MyBhapticsTactsuit;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(AudioTrip_bhaptics.AudioTrip_bhaptics), "AudioTrip_bhaptics", "1.1.2", "Florian Fahrenberger")]
+[assembly: MelonInfo(typeof(AudioTrip_bhaptics.AudioTrip_bhaptics), "AudioTrip_bhaptics", "2.0.0", "Florian Fahrenberger")]
 [assembly: MelonGame("Kinemotik Studios", "Audio Trip")]
 
 
