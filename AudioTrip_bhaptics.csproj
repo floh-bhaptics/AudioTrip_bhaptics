@@ -39,9 +39,8 @@
       <HintPath>D:\Games\Oculus\Software\andromeda-entertainment-audio-trip\AudioTrip_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="bHapticsLib">
-      <HintPath>D:\Games\Oculus\Software\andromeda-entertainment-audio-trip\MelonLoader\net35\bHapticsLib.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Bhaptics.Tact">
+      <HintPath>libs\Bhaptics.Tact.dll</HintPath>
     </Reference>
     <Reference Include="MelonLoader">
       <HintPath>D:\Games\Oculus\Software\andromeda-entertainment-audio-trip\MelonLoader\net35\MelonLoader.dll</HintPath>
@@ -63,12 +62,26 @@
   <ItemGroup>
     <Compile Include="AudioTrip_bhaptics.cs" />
     <Compile Include="MyBhapticsTactsuit.cs" />
+    <Compile Include="Resource1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource1.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resource1.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="config.json" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>XCOPY "$(SolutionDir)bHaptics" "$(TargetDir)\bHaptics\" /S /Y</PostBuildEvent>
+    <PostBuildEvent>XCOPY "$(SolutionDir)libs\bhaptics_library.dll" "$(TargetDir)bhaptics_library.dll" /Y /I</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading;
 using MelonLoader;
+using Bhaptics.SDK2;
+
 
 namespace MyBhapticsTactsuit
 {
@@ -17,91 +15,29 @@ namespace MyBhapticsTactsuit
          * */
         public bool suitDisabled = true;
         public bool systemInitialized = false;
-        // Event to start and stop the heartbeat thread
-        private static ManualResetEvent HeartBeat_mrse = new ManualResetEvent(false);
-        // dictionary of all feedback patterns found in the bHaptics directory
-        public Dictionary<String, FileInfo> FeedbackMap = new Dictionary<String, FileInfo>();
-        public List<string> myEffectStrings = new List<string> { };
-
-        private static bHapticsLib.RotationOption defaultRotationOption = new bHapticsLib.RotationOption(0.0f, 0.0f);
-
-        public void HeartBeatFunc()
-        {
-            while (true)
-            {
-                // Check if reset event is active
-                HeartBeat_mrse.WaitOne();
-                bHapticsLib.bHapticsManager.PlayRegistered("HeartBeat");
-                Thread.Sleep(600);
-            }
-        }
 
         public TactsuitVR()
         {
             LOG("Initializing suit");
-            suitDisabled = false;
-            RegisterAllTactFiles();
-            LOG("Starting HeartBeat thread...");
-            Thread HeartBeatThread = new Thread(HeartBeatFunc);
-            HeartBeatThread.Start();
+            // Default configuration exported in the portal, in case the PC is not online
+            var config = System.Text.Encoding.UTF8.GetString(AudioTrip_bhaptics.Resource1.config);
+            // Initialize with appID, apiKey, and default value in case it is unreachable
+            var res = BhapticsSDK2.Initialize("h9209ftduZgWtMDPNX3t", "lzwIKi5SvVJoEihFMw9h", config);
+            // if it worked, enable the suit
+            suitDisabled = res != 0;
         }
 
         public void LOG(string logStr)
         {
-#pragma warning disable CS0618 // remove warning that the logger is deprecated
             MelonLogger.Msg(logStr);
-#pragma warning restore CS0618
         }
 
 
-
-        void RegisterAllTactFiles()
-        {
-            // Get location of the compiled assembly and search through "bHaptics" directory and contained patterns
-            string configPath = Directory.GetCurrentDirectory() + "\\Mods\\bHaptics";
-            DirectoryInfo d = new DirectoryInfo(configPath);
-            FileInfo[] Files = d.GetFiles("*.tact", SearchOption.AllDirectories);
-            for (int i = 0; i < Files.Length; i++)
-            {
-                string filename = Files[i].Name;
-                string fullName = Files[i].FullName;
-                string prefix = Path.GetFileNameWithoutExtension(filename);
-                // LOG("Trying to register: " + prefix + " " + fullName);
-                if (filename == "." || filename == "..")
-                    continue;
-                string tactFileStr = File.ReadAllText(fullName);
-                try
-                {
-                    bHapticsLib.bHapticsManager.RegisterPatternFromJson(prefix, tactFileStr);
-                    LOG("Pattern registered: " + prefix);
-                }
-                catch (Exception e) { LOG(e.ToString()); }
-
-                FeedbackMap.Add(prefix, Files[i]);
-                if (prefix.StartsWith("LightEffect"))
-                {
-                    myEffectStrings.Add(prefix);
-                    LOG("Light effect pattern added: " + prefix);
-                }
-            }
-            systemInitialized = true;
-        }
 
         public void PlaybackHaptics(String key, float intensity = 1.0f, float duration = 1.0f)
         {
-            //LOG("Trying to play");
-            if (FeedbackMap.ContainsKey(key))
-            {
-                //LOG("ScaleOption");
-                bHapticsLib.ScaleOption scaleOption = new bHapticsLib.ScaleOption(intensity, duration);
-                //LOG("Submit");
-                bHapticsLib.bHapticsManager.PlayRegistered(key, key, scaleOption, defaultRotationOption);
-                // LOG("Playing back: " + key);
-            }
-            else
-            {
-                LOG("Feedback not registered: " + key);
-            }
+            if (suitDisabled) return;
+            BhapticsSDK2.Play(key.ToLower(), intensity, duration, 0f, 0f);
         }
 
         public void HitNote(string patternName, bool isRightHand, bool isFoot, float intensity = 1.0f)
@@ -110,10 +46,6 @@ namespace MyBhapticsTactsuit
             // isRightHand is just which side the feedback is on
             // intensity should usually be between 0 and 1
 
-            float duration = 1.0f;
-            var scaleOption = new bHapticsLib.ScaleOption(intensity, duration);
-            // the function needs some rotation if you want to give the scale option as well
-            var rotationFront = new bHapticsLib.RotationOption(0f, 0f);
             // make postfix according to parameter
             string postfix = "_L";
             if (isRightHand) { postfix = "_R"; }
@@ -125,56 +57,9 @@ namespace MyBhapticsTactsuit
             // between swords, pistols, shotguns, ... by just changing the shoulder feedback
             // and scaling via the intensity for arms and hands
             string keyVest = patternName + "Vest" + postfix;
-            if (isFoot) bHapticsLib.bHapticsManager.PlayRegistered(keyFoot, keyFoot, scaleOption, rotationFront);
-            else bHapticsLib.bHapticsManager.PlayRegistered(keyArm, keyArm, scaleOption, rotationFront);
-            bHapticsLib.bHapticsManager.PlayRegistered(keyVest, keyVest, scaleOption, rotationFront);
-        }
-
-
-        public void StartHeartBeat()
-        {
-            HeartBeat_mrse.Set();
-        }
-
-        public void StopHeartBeat()
-        {
-            HeartBeat_mrse.Reset();
-        }
-
-        public bool IsPlaying(String effect)
-        {
-            return bHapticsLib.bHapticsManager.IsPlaying(effect);
-        }
-
-        public void StopHapticFeedback(String effect)
-        {
-            bHapticsLib.bHapticsManager.StopPlaying(effect);
-        }
-
-        public void StopAllHapticFeedback()
-        {
-            StopThreads();
-            foreach (String key in FeedbackMap.Keys)
-            {
-                bHapticsLib.bHapticsManager.StopPlaying(key);
-            }
-        }
-
-        public void PlaySpecialEffect(string effect)
-        {
-            foreach (string myEffect in myEffectStrings)
-            {
-                if (IsPlaying(myEffect)) return;
-            }
-            if (IsPlaying(effect)) return;
-            PlaybackHaptics(effect);
-        }
-
-        public void StopThreads()
-        {
-            // Yes, looks silly here, but if you have several threads like this, this is
-            // very useful when the player dies or starts a new level
-            StopHeartBeat();
+            if (isFoot) PlaybackHaptics(keyFoot, intensity);
+            else PlaybackHaptics(keyArm, intensity);
+            PlaybackHaptics(keyVest, intensity);
         }
 
 
