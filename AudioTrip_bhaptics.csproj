@@ -82,6 +82,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>XCOPY "$(SolutionDir)libs\bhaptics_library.dll" "$(TargetDir)bhaptics_library.dll" /Y /I</PostBuildEvent>
+    <PostBuildEvent>XCOPY "$(SolutionDir)libs\bhaptics_library.dll" "$(TargetDir)" /Y /I</PostBuildEvent>
   </PropertyGroup>
 </Project>
